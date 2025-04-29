@@ -33,6 +33,30 @@ const checkPatreonMembership = async (code) => {
     params: { include: 'memberships' }
   });
 
+  console.log("🔎 Patreon Identity Response:");
+  console.log(JSON.stringify(identityResponse.data, null, 2)); // <-- ADD THIS
+
+  const memberships = identityResponse.data.included || [];
+
+  const isPatron = memberships.some(
+    m => m.type === 'member' && m.attributes.patron_status === 'active_patron'
+  );
+
+  return isPatron;
+};
+
+
+  const tokenResponse = await axios.post('https://www.patreon.com/api/oauth2/token', payload.toString(), {
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+  });
+
+  const accessToken = tokenResponse.data.access_token;
+
+  const identityResponse = await axios.get('https://www.patreon.com/api/oauth2/v2/identity', {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    params: { include: 'memberships' }
+  });
+
   const memberships = identityResponse.data.included || [];
 
   const isPatron = memberships.some(
